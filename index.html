@@ -9,15 +9,15 @@
         :root { --bg-color: #0b0f19; }
         body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; position: relative; }
         
-        /* Cấu hình lưới Masonry */
-        .masonry-grid { columns: 1; column-gap: 8px; transition: all 0.3s ease; }
-        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 16px; } }
-        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 24px; } }
-        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 32px; } }
+        /* Cấu hình lưới Masonry sát rạt đúng 4px */
+        .masonry-grid { columns: 1; column-gap: 4px; transition: all 0.3s ease; }
+        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 4px; } }
+        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 4px; } }
+        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 4px; } }
         
-        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; z-index: 1; }
+        .masonry-item { break-inside: avoid; margin-bottom: 4px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; z-index: 1; }
 
-        /* LỚP PHỦ TỐI NỀN 40% TOÀN MÀN HÌNH - CHỈ CHẠY TRÊN WEB PC */
+        /* LỚP PHỦ TỐI NỀN 40% KHI DI CHUỘT VÀ PHÓNG TO RA GIỮA - CHỈ WEB PC */
         @media (min-width: 1024px) {
             body::before {
                 content: "";
@@ -33,18 +33,16 @@
                 opacity: 1;
             }
             
-            /* Khi tương tác vào lưới, làm mờ dịu các ảnh xung quanh */
             .masonry-grid:hover .masonry-item {
                 opacity: 0.5;
                 filter: blur(0.5px);
             }
             
-            /* Ảnh được chọn sáng bừng, phóng cực to 50% từ tâm giữa và nổi lên trên cùng */
             .masonry-grid .masonry-item:hover {
                 opacity: 1 !important;
                 filter: none !important;
                 z-index: 50 !important;
-                transform: scale(1.5) !important;
+                transform: scale(1.4) !important; /* Phóng to 40% ra giữa */
                 box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95);
             }
             
@@ -62,7 +60,7 @@
             <nav id="menu-container" class="flex gap-6 text-sm font-medium"></nav>
         </div>
     </header>
-    <main class="max-w-7xl mx-auto p-4 py-8">
+    <main class="max-w-7xl mx-auto p-2 py-6">
         <div id="portfolio-grid" class="masonry-grid"></div>
     </main>
     <script>
@@ -70,7 +68,7 @@
         
         function getEmbedLink(url) {
             const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            return match && match[1] ? `https://lh3.googleusercontent.com/d/${match[1]}` : url;
+            return match && match[1] ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1600` : url;
         }
 
         window.onload = function() {
@@ -83,7 +81,10 @@
             document.getElementById('brand-title-el').innerText = config.brandTitle || "PORTFOLIO";
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
-            renderPortfolio(config.items);
+            
+            // Đảo vị trí mảng ngẫu nhiên 1 lần khi load để tạo bố cục phá cách
+            const shuffledItems = [...config.items].sort(() => Math.random() - 0.5);
+            renderPortfolio(shuffledItems);
         }
 
         function renderPortfolio(items) {
@@ -93,18 +94,14 @@
                 return;
             }
 
-            // Khoảng cách trồi sụt ngẫu nhiên tạo bố cục so le nghệ thuật phá cách trên Web PC
-            const webMargins = ["10px", "50px", "20px", "80px", "0px", "35px", "65px", "15px"];
-
-            grid.innerHTML = items.map((item, idx) => {
-                const isPC = window.innerWidth >= 1024;
-                const marginStyle = isPC ? webMargins[idx % webMargins.length] : "0px";
-
+            // Đã loại bỏ hoàn toàn margin-top nhân tạo. 
+            // Bố cục tự nhiên sẽ khít rạt 4px và tự đan xen dựa vào chiều cao ảnh.
+            grid.innerHTML = items.map((item) => {
                 if (item.type === 'video') {
                     const videoUrl = item.link.match(/\/file\/d\/([^/]+)/) || item.link.match(/\/d\/([^/]+)/) || item.link.match(/id=([^&]+)/);
                     const embedSrc = videoUrl ? `https://drive.google.com/file/d/${videoUrl[1]}/preview` : item.link;
                     return `
-                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" style="margin-top: ${marginStyle};">
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm">
                             <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
                                 <iframe src="${embedSrc}" class="w-full h-full border-0 pointer-events-none" allow="autoplay"></iframe>
                                 <div class="absolute inset-0 bg-transparent"></div>
@@ -114,7 +111,7 @@
                 } else {
                     const imgUrl = getEmbedLink(item.link);
                     return `
-                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" style="margin-top: ${marginStyle};">
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm">
                             <div class="relative bg-black flex items-center justify-center overflow-hidden">
                                 <img src="${imgUrl}" class="w-full h-auto object-cover" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
                             </div>
@@ -125,8 +122,14 @@
         }
 
         function filterCategory(cat) {
-            if (cat === 'Tất Cả' || cat === 'All') renderPortfolio(config.items);
-            else renderPortfolio(config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase()));
+            if (cat === 'Tất Cả' || cat === 'All') {
+                const shuffled = [...config.items].sort(() => Math.random() - 0.5);
+                renderPortfolio(shuffled);
+            }
+            else {
+                const filtered = config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase());
+                renderPortfolio(filtered);
+            }
         }
     </script>
 </body>
