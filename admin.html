@@ -7,16 +7,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-[#0b0f19] text-white font-family: system-ui, -apple-system, sans-serif; p-6">
-
     <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 mt-6 shadow-2xl">
         <div class="flex justify-between items-center mb-6 border-b border-gray-900 pb-4">
             <div>
-                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Quản Trị V4.0</h2>
+                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Quản Trị V4.1</h2>
                 <p class="text-xs text-gray-500 mt-1">Hệ thống quản lý danh mục và giao diện độc lập</p>
             </div>
             <a href="index.html" class="bg-gray-900 hover:bg-gray-800 border border-gray-800 px-4 py-1.5 rounded-full text-xs font-medium transition">Xem Trang Chủ →</a>
         </div>
-
         <div id="admin-auth" class="mb-6 bg-gray-900 p-4 rounded-xl border border-gray-800">
             <p class="mb-2 text-xs text-gray-400">Nhập mật khẩu quyền Admin (Mặc định: 123456):</p>
             <div class="flex gap-2">
@@ -24,28 +22,22 @@
                 <button onclick="checkAuth()" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-2 rounded-lg text-sm font-bold transition cursor-pointer">Đăng Nhập</button>
             </div>
         </div>
-
         <div id="admin-content" class="hidden space-y-6">
-            
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-1 text-xs uppercase tracking-wider text-purple-400">1. Tùy Biến Tên Thương Hiệu</h3>
-                <p class="text-[11px] text-gray-500 mb-3">Thay đổi dòng chữ PORTFOLIO ở góc trái trang chủ thành tên cá nhân của bạn.</p>
                 <input type="text" id="cfg-title" class="bg-gray-950 p-2.5 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-purple-500" placeholder="Ví dụ: HOÀNG TRƯƠNG">
             </div>
-
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">2. Cấu Hình Google API Key</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white outline-none focus:border-yellow-500" placeholder="Mã AIzaSy...">
+                    <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white outline-none" placeholder="Mã AIzaSy...">
                     <button onclick="saveApiKey()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer">Lưu Key</button>
                 </div>
             </div>
-
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-blue-400">3. Quản Lý Menu (Cách nhau bằng dấu phẩy)</h3>
-                <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-blue-500" placeholder="Ví dụ: Tất Cả, Hình Ảnh, Video TikTok">
+                <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-blue-500">
             </div>
-
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-green-400">4. Thêm Sản Phẩm Từ Google Drive</h3>
                 <div class="bg-gray-950 p-4 rounded-xl border border-gray-900 space-y-3">
@@ -56,7 +48,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-xs uppercase tracking-wider text-red-400">5. Danh Sách Kho Ảnh Hiện Tại</h3>
@@ -64,56 +55,43 @@
                 </div>
                 <div id="admin-items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
             </div>
-
             <button onclick="saveAllConfig()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl w-full text-center text-sm shadow-xl tracking-wide transition cursor-pointer block">💾 BẤM LƯU ĐỂ ĐỒNG BỘ TOÀN BỘ WEBSITE</button>
         </div>
     </div>
-
     <script>
         let config = { brandTitle: "PORTFOLIO", apiKey: "", menu: ["Tất Cả", "Hình Ảnh", "Video"], items: [] };
-
         function init() {
             const saved = localStorage.getItem('portfolio_config');
             if (saved) { config = JSON.parse(saved); }
             fillAdminFields();
         }
-
         function checkAuth() {
             if (document.getElementById('admin-pass').value === '123456') {
                 document.getElementById('admin-auth').classList.add('hidden');
                 document.getElementById('admin-content').classList.remove('hidden');
-            } else { alert('Sai mật khẩu rồi bạn ơi!'); }
+            } else { alert('Sai mật khẩu!'); }
         }
-
         function fillAdminFields() {
             document.getElementById('cfg-title').value = config.brandTitle || "PORTFOLIO";
             document.getElementById('cfg-api-key').value = config.apiKey || "";
             document.getElementById('cfg-menu').value = config.menu.join(', ');
             renderAdminItemsList();
         }
-
         function saveApiKey() {
             config.apiKey = document.getElementById('cfg-api-key').value.trim();
             localStorage.setItem('portfolio_config', JSON.stringify(config));
-            alert('Đã lưu mã API Key thành công!');
+            alert('Đã lưu mã API Key!');
         }
-
         async function addFolder() {
             const folderLink = document.getElementById('folder-link').value.trim();
             const category = document.getElementById('folder-cat').value.trim() || "Tất Cả";
             if(!config.apiKey) return alert("Vui lòng điền và lưu API Key ở mục số 2 trước!");
-            if(!folderLink) return alert("Hãy dán link Folder Google Drive!");
-
             const match = folderLink.match(/folders\/([^?/]+)/);
             if(!match) return alert("Link folder Google Drive không đúng cấu trúc!");
-            
-            alert("Đang tiến hành quét dữ liệu từ Google Drive, vui lòng đợi...");
-
             try {
                 const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${match[1]}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${config.apiKey}&pageSize=100`);
                 const data = await res.json();
                 if(data.error) throw new Error(data.error.message);
-                
                 let count = 0;
                 if(data.files && data.files.length > 0) {
                     data.files.forEach(f => {
@@ -134,28 +112,24 @@
                 localStorage.setItem('portfolio_config', JSON.stringify(config));
                 renderAdminItemsList();
                 alert(`Quét xong! Đã nạp thành công thêm ${count} sản phẩm.`);
-            } catch (e) { alert("Lỗi khi kết nối Google API: " + e.message); }
+            } catch (e) { alert("Lỗi: " + e.message); }
         }
-
         function deleteItem(index) {
             config.items.splice(index, 1);
             localStorage.setItem('portfolio_config', JSON.stringify(config));
             renderAdminItemsList();
         }
-
         function clearAllItems() {
-            if(confirm("Bạn có chắc chắn muốn xóa SẠCH TOÀN BỘ sản phẩm hiện tại để quét lại từ đầu không?")) {
+            if(confirm("Xóa toàn bộ sản phẩm hiện tại?")) {
                 config.items = [];
                 localStorage.setItem('portfolio_config', JSON.stringify(config));
                 renderAdminItemsList();
-                alert("Đã xóa sạch kho ảnh!");
             }
         }
-
         function renderAdminItemsList() {
             const list = document.getElementById('admin-items-list');
             if(config.items.length === 0) {
-                list.innerHTML = `<p class="text-center py-6 text-xs text-gray-600">Kho ảnh trống. Hãy quét Folder ở mục phía trên.</p>`;
+                list.innerHTML = `<p class="text-center py-6 text-xs text-gray-600">Kho ảnh trống.</p>`;
                 return;
             }
             list.innerHTML = config.items.map((item, index) => `
@@ -165,14 +139,12 @@
                 </div>
             `).join('');
         }
-
         function saveAllConfig() {
             config.brandTitle = document.getElementById('cfg-title').value.trim() || "PORTFOLIO";
             config.menu = document.getElementById('cfg-menu').value.split(',').map(s => s.trim());
             localStorage.setItem('portfolio_config', JSON.stringify(config));
-            alert('🎉 Chúc mừng! Đã đồng bộ cấu hình thành công ra trang chủ ngoài.');
+            alert('🎉 Đồng bộ cấu hình thành công!');
         }
-
         window.onload = init;
     </script>
 </body>
