@@ -8,14 +8,33 @@
     <style>
         :root { --bg-color: #0b0f19; }
         body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
-        .masonry-grid { columns: 1; column-gap: 4px; }
-        @media (min-width: 640px) { .masonry-grid { columns: 2; } }
-        @media (min-width: 1024px) { .masonry-grid { columns: 3; } }
-        @media (min-width: 1280px) { .masonry-grid { columns: 4; } }
-        .masonry-item { break-inside: avoid; margin-bottom: 4px; }
+        
+        /* Cấu hình lưới Masonry so le */
+        .masonry-grid { columns: 1; column-gap: 8px; transition: all 0.3s ease; }
+        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 12px; } }
+        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 20px; } }
+        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 24px; } }
+        
+        /* Tạo khoảng trống ngẫu nhiên mặc định cho các item */
+        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); position: relative; z-index: 1; }
+
+        /* HIỆU ỨNG TRUYỂN LÃM - CHỈ ÁP DỤNG TRÊN WEB PC */
         @media (min-width: 1024px) {
-            .portfolio-card { transition: transform 0.3s ease, box-shadow 0.3s ease; z-index: 1; }
-            .portfolio-card:hover { transform: scale(1.05); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.8); z-index: 30; position: relative; }
+            /* 1. Khi di chuột vào vùng lưới, tạo một lớp nền tối 40% gián tiếp bằng cách làm mờ các ảnh khác */
+            .masonry-grid:hover .masonry-item {
+                opacity: 0.4; /* Làm mờ/tối các ảnh xung quanh đi 40% */
+                filter: blur(1px);
+            }
+            
+            /* 2. Cấu hình đặc biệt cho ảnh được trỏ chuột: PHÓNG TO CỰC ĐẠI VÀ BAY RA GIỮA MÀN HÌNH */
+            .masonry-grid .masonry-item:hover {
+                opacity: 1 !important;
+                filter: blur(0px) !important;
+                z-index: 9999 !important; /* Đảm bảo nằm đè lên trên tất cả mọi thứ kể cả Header */
+                transform: scale(1.5) !important; /* Phóng to cực đại 50% */
+                box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95);
+                position: relative;
+            }
         }
     </style>
 </head>
@@ -26,7 +45,7 @@
             <nav id="menu-container" class="flex gap-6 text-sm font-medium"></nav>
         </div>
     </header>
-    <main class="max-w-7xl mx-auto p-1 py-4">
+    <main class="max-w-7xl mx-auto p-4 py-8">
         <div id="portfolio-grid" class="masonry-grid"></div>
     </main>
     <script>
@@ -34,35 +53,44 @@
         
         function getEmbedLink(url) {
             const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            if (match && match[1]) {
-                // Chuyển sang dùng link thumbnail chất lượng cao để bypass bộ lọc chặn của Google
-                return `https://lh3.googleusercontent.com/u/0/d/${match[1]}=w1600-h1600`;
-            }
-            return url;
+            return match && match[1] ? `https://lh3.googleusercontent.com/d/$${match[1]}=w1600-h1600` : url;
         }
 
-        function init() {
+        window.onload = function() {
             const saved = localStorage.getItem('portfolio_config');
             if (saved) config = JSON.parse(saved);
             applyConfig();
-        }
+        };
+
         function applyConfig() {
             document.getElementById('brand-title-el').innerText = config.brandTitle || "PORTFOLIO";
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
-            config.items.sort((a,b) => (a.order || 0) - (b.order || 0));
+            
+            // Giữ nguyên thứ tự nạp gốc từ Drive
             renderPortfolio(config.items);
         }
+
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào admin.html cấu hình quét folder nhé!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào admin.html để quét folder nhé!</div>`;
                 return;
             }
-            grid.innerHTML = items.map((item) => {
+
+            // Mảng khoảng cách ngẫu nhiên cố định để tạo bố cục trồi sụt so le nghệ thuật (chỉ cho PC)
+            const webMargins = ["10px", "55px", "25px", "80px", "5px", "40px", "70px", "15px"];
+
+            grid.innerHTML = items.map((item, idx) => {
                 const dl = getEmbedLink(item.link);
+                const isPC = window.innerWidth >= 1024;
+                
+                // Gán lề ngẫu nhiên cho từng ảnh để tạo bố cục phá cách phá bỏ sự đều nhau
+                const marginStyle = isPC ? webMargins[idx % webMargins.length] : "0px";
+
                 return `
-                    <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm">
+                    <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" 
+                         style="margin-top: ${marginStyle};">
                         <div class="relative bg-black flex items-center justify-center overflow-hidden">
                             ${item.type === 'video' ? 
                                 `<video src="${item.link.replace('/view', '/preview')}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : 
@@ -73,11 +101,11 @@
                 `;
             }).join('');
         }
+
         function filterCategory(cat) {
             if (cat === 'Tất Cả' || cat === 'All') renderPortfolio(config.items);
             else renderPortfolio(config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase()));
         }
-        window.onload = init;
     </script>
 </body>
 </html>
