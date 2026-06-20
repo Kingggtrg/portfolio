@@ -6,68 +6,40 @@
     <title>My Portfolio</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        :root {
-            --bg-color: #0b0f19;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: #ffffff;
-            font-family: system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
-        }
-        .masonry-grid {
-            columns: 1;
-            column-gap: 4px;
-        }
+        :root { --bg-color: #0b0f19; }
+        body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        .masonry-grid { columns: 1; column-gap: 4px; }
         @media (min-width: 640px) { .masonry-grid { columns: 2; } }
         @media (min-width: 1024px) { .masonry-grid { columns: 3; } }
         @media (min-width: 1280px) { .masonry-grid { columns: 4; } }
-        
-        .masonry-item {
-            break-inside: avoid;
-            margin-bottom: 4px;
-        }
+        .masonry-item { break-inside: avoid; margin-bottom: 4px; }
         @media (min-width: 1024px) {
-            .portfolio-card {
-                transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
-                z-index: 1;
-            }
-            .portfolio-card:hover {
-                transform: scale(1.1);
-                box-shadow: 0 20px 25px -5px rgba(0,0,0,0.8);
-                z-index: 30;
-                position: relative;
-            }
+            .portfolio-card { transition: transform 0.3s ease, box-shadow 0.3s ease; z-index: 1; }
+            .portfolio-card:hover { transform: scale(1.08); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.8); z-index: 30; position: relative; }
         }
     </style>
 </head>
 <body>
-
     <header class="border-b border-gray-950 p-4 sticky top-0 bg-[#0b0f19] bg-opacity-85 backdrop-blur-md z-40">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 id="brand-title-el" class="text-xl font-bold tracking-widest text-white">PORTFOLIO</h1>
             <nav id="menu-container" class="flex gap-6 text-sm font-medium"></nav>
         </div>
     </header>
-
     <main class="max-w-7xl mx-auto p-1 py-4">
         <div id="portfolio-grid" class="masonry-grid"></div>
     </main>
-
     <script>
         let config = { brandTitle: "PORTFOLIO", apiKey: "", menu: ["Tất Cả", "Hình Ảnh", "Video"], items: [] };
-        
         function cleanDriveLink(url) {
-            const match = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+            const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
             return match && match[1] ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
         }
-
         function init() {
             const saved = localStorage.getItem('portfolio_config');
             if (saved) config = JSON.parse(saved);
             applyConfig();
         }
-
         function applyConfig() {
             document.getElementById('brand-title-el').innerText = config.brandTitle || "PORTFOLIO";
             const mc = document.getElementById('menu-container');
@@ -75,11 +47,10 @@
             config.items.sort((a,b) => (a.order || 0) - (b.order || 0));
             renderPortfolio(config.items);
         }
-
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Chưa có sản phẩm hiển thị. Hãy vào trang admin.html để quét folder sản phẩm nhé!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào admin.html cấu hình quét folder nhé!</div>`;
                 return;
             }
             grid.innerHTML = items.map((item) => {
@@ -87,21 +58,16 @@
                 return `
                     <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm">
                         <div class="relative bg-black flex items-center justify-center overflow-hidden">
-                            ${item.type === 'video' ? 
-                                `<video src="${dl}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : 
-                                `<img src="${dl}" class="w-full h-auto object-cover" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">`
-                            }
+                            ${item.type === 'video' ? `<video src="${dl}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : `<img src="${dl}" class="w-full h-auto object-cover" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">`}
                         </div>
                     </div>
                 `;
             }).join('');
         }
-
         function filterCategory(cat) {
             if (cat === 'Tất Cả' || cat === 'All') renderPortfolio(config.items);
             else renderPortfolio(config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase()));
         }
-
         window.onload = init;
     </script>
 </body>
