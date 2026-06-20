@@ -83,4 +83,271 @@
                     </div>
                 </div>
 
-                <div class="border
+                <div class="border border-gray-800 p-4 rounded bg-gray-950">
+                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-blue-400">2. Quản Lý Thanh Menu (Cách nhau bằng dấu phẩy)</h3>
+                    <input type="text" id="cfg-menu" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-sm text-white" placeholder="Ví dụ: Tất Cả, Hình Ảnh, Video TikTok">
+                </div>
+
+                <div class="border border-gray-800 p-4 rounded bg-gray-950">
+                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-green-400">3. Thêm Sản Phẩm Mới</h3>
+                    
+                    <div class="bg-gray-900 p-3 rounded mb-4 border border-gray-800">
+                        <p class="text-xs text-green-400 font-bold mb-2">CÁCH 1: THÊM CẢ FOLDER GOOGLE DRIVE (Tự động nhận hết ảnh/video)</p>
+                        <div class="space-y-2">
+                            <input type="text" id="folder-link" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-xs text-white" placeholder="Dán link FOLDER Google Drive vào đây">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="folder-cat" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-xs text-white" placeholder="Thuộc Menu nào?">
+                                <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-xs font-bold cursor-pointer text-white">QUÉT & THÊM CẢ FOLDER</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900 p-3 rounded border border-gray-800">
+                        <p class="text-xs text-blue-400 font-bold mb-2">CÁCH 2: THÊM TỪNG FILE LẺ TRUYỀN THỐNG</p>
+                        <div class="space-y-3 text-xs">
+                            <input type="text" id="item-title" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Tiêu đề sản phẩm lẻ">
+                            <input type="text" id="item-link" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Dán link FILE lẻ chia sẻ từ Google Drive">
+                            <div class="grid grid-cols-2 gap-4">
+                                <select id="item-type" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white">
+                                    <option value="image">Định dạng: Hình Ảnh</option>
+                                    <option value="video">Định dạng: Video</option>
+                                </select>
+                                <input type="text" id="item-cat" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Thuộc Menu nào?">
+                            </div>
+                            <input type="number" id="item-order" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Thứ tự sắp xếp (ví dụ: 1, 2, 3...)">
+                            <button onclick="addItem()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded w-full font-bold cursor-pointer">+ THÊM FILE LẺ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-gray-800 p-4 rounded bg-gray-950">
+                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-red-400">Danh Sách Sản Phẩm Đang Có</h3>
+                    <div id="admin-items-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold flex-1 text-center cursor-pointer">1. BẤM LƯU ĐỂ XEM THỬ</button>
+                    <button onclick="exportConfig()" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded font-bold flex-1 text-center cursor-pointer">2. XUẤT FILE ĐỂ UP LÊN HOST</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let config = {
+            apiKey: "",
+            primaryColor: "#3b82f6",
+            bgColor: "#111827",
+            layout: "grid-3",
+            menu: ["Tất Cả", "Hình Ảnh", "Video"],
+            items: []
+        };
+
+        function cleanDriveLink(url) {
+            const match = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            return url;
+        }
+
+        function init() {
+            const saved = localStorage.getItem('portfolio_config');
+            if (saved) {
+                config = JSON.parse(saved);
+            }
+            applyConfig();
+        }
+
+        function applyConfig() {
+            document.documentElement.style.setProperty('--primary-color', config.primaryColor);
+            document.documentElement.style.setProperty('--bg-color', config.bgColor);
+            document.getElementById('cfg-primary').value = config.primaryColor;
+            document.getElementById('cfg-bg').value = config.bgColor;
+            document.getElementById('cfg-layout').value = config.layout;
+            document.getElementById('cfg-menu').value = config.menu.join(', ');
+            document.getElementById('cfg-api-key').value = config.apiKey || "";
+
+            const grid = document.getElementById('portfolio-grid');
+            grid.className = "grid gap-6";
+            if (config.layout === 'grid-2') grid.classList.add('grid-cols-1', 'md:grid-cols-2');
+            else if (config.layout === 'grid-4') grid.classList.add('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-4');
+            else grid.classList.add('grid-cols-1', 'md:grid-cols-3');
+
+            const menuContainer = document.getElementById('menu-container');
+            menuContainer.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-300 font-medium">${m}</button>`).join('');
+
+            config.items.sort((a,b) => (a.order || 0) - (b.order || 0));
+            renderPortfolio(config.items);
+            renderAdminItems();
+        }
+
+        function renderPortfolio(items) {
+            const grid = document.getElementById('portfolio-grid');
+            if(items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm">Chưa có sản phẩm nào. Hãy bấm nút Admin ở góc phải để cấu hình API Key và thêm Folder ảnh từ Google Drive của bạn!</div>`;
+                return;
+            }
+            grid.innerHTML = items.map(item => {
+                const directLink = cleanDriveLink(item.link);
+                return `
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden shadow-lg group">
+                        <div class="relative aspect-video bg-black flex items-center justify-center">
+                            ${item.type === 'video' ? 
+                                `<video src="${directLink}" controls class="w-full h-full object-cover"></video>` : 
+                                `<img src="${directLink}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${item.title}" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Image'">`
+                            }
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-semibold text-sm truncate text-white">${item.title}</h4>
+                            <span class="text-xs text-gray-400 mt-1 inline-block bg-gray-800 px-2 py-0.5 rounded">${item.category}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(cat) {
+            if (cat === 'Tất Cả' || cat === 'All') {
+                renderPortfolio(config.items);
+            } else {
+                const filtered = config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase());
+                renderPortfolio(filtered);
+            }
+        }
+
+        function toggleAdmin() {
+            document.getElementById('admin-panel').classList.toggle('hidden');
+        }
+
+        function checkAuth() {
+            if (document.getElementById('admin-pass').value === '123456') {
+                document.getElementById('admin-auth').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+            } else {
+                alert('Sai mật khẩu rồi bạn ơi!');
+            }
+        }
+
+        function saveApiKey() {
+            config.apiKey = document.getElementById('cfg-api-key').value.trim();
+            localStorage.setItem('portfolio_config', JSON.stringify(config));
+            alert('Đã lưu Google API Key thành công!');
+        }
+
+        // HÀM QUÉT FOLDER GOOGLE DRIVE XỊN XÒ
+        async function addFolder() {
+            const folderLink = document.getElementById('folder-link').value.trim();
+            const category = document.getElementById('folder-cat').value.trim() || "Tất Cả";
+            
+            if(!config.apiKey) return alert("Vui lòng điền và lưu Google API Key ở mục phía trên trước nhé!");
+            if(!folderLink) return alert("Vui lòng dán link Folder Google Drive!");
+
+            // Trích xuất Folder ID từ link
+            const match = folderLink.match(/folders\/([^?/]+)/);
+            if(!match) return alert("Link Folder Drive không đúng định dạng rồi bạn ơi!");
+            const folderId = match[1];
+
+            alert("Đang tiến hành quét Folder Google Drive, vui lòng đợi một chút...");
+
+            try {
+                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${config.apiKey}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if(data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                if(!data.files || data.files.length === 0) {
+                    return alert("Không tìm thấy file nào trong Folder này. Hãy chắc chắn Folder đã được bật chế độ 'Chia sẻ công khai' nhé!");
+                }
+
+                let count = 0;
+                data.files.forEach(file => {
+                    const isVideo = file.mimeType.includes('video');
+                    const isImage = file.mimeType.includes('image');
+                    
+                    if(isImage || isVideo) {
+                        const fileLink = `https://drive.google.com/file/d/${file.id}/view`;
+                        config.items.push({
+                            title: file.name.split('.')[0], // Lấy tên file bỏ đuôi mở rộng
+                            link: fileLink,
+                            type: isVideo ? 'video' : 'image',
+                            category: category,
+                            order: 10
+                        });
+                        count++;
+                    }
+                });
+
+                document.getElementById('folder-link').value = '';
+                renderAdminItems();
+                applyConfig();
+                alert(`Thành công! Đã quét và tự động thêm ${count} file từ Folder vào Portfolio. Đừng quên bấm nút LƯU MÀU XANH ở dưới cùng nhé!`);
+
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi khi quét Folder: " + error.message + "\nHãy kiểm tra xem API Key chuẩn chưa và Folder đã bật công khai chưa nhé.");
+            }
+        }
+
+        function addItem() {
+            const title = document.getElementById('item-title').value;
+            const link = document.getElementById('item-link').value;
+            const type = document.getElementById('item-type').value;
+            const category = document.getElementById('item-cat').value || "Tất Cả";
+            const order = parseInt(document.getElementById('item-order').value) || 0;
+
+            if (!title || !link) return alert('Vui lòng điền đủ Tên và Link Drive nhé!');
+
+            config.items.push({ title, link, type, category, order });
+            document.getElementById('item-title').value = '';
+            document.getElementById('item-link').value = '';
+            renderAdminItems();
+            applyConfig();
+            alert('Đã thêm file lẻ! Nhớ bấm nút LƯU ở dưới cùng nha.');
+        }
+
+        function deleteItem(index) {
+            config.items.splice(index, 1);
+            renderAdminItems();
+            applyConfig();
+        }
+
+        function renderAdminItems() {
+            const list = document.getElementById('admin-items-list');
+            list.innerHTML = config.items.map((item, index) => `
+                <div class="flex justify-between items-center bg-gray-800 p-2 rounded text-xs text-gray-300">
+                    <span>[STT: ${item.order}] ${item.title} (${item.category}) - ${item.type}</span>
+                    <button onclick="deleteItem(${index})" class="text-red-500 font-bold px-2 cursor-pointer">Xóa</button>
+                </div>
+            `).join('');
+        }
+
+        function saveConfig() {
+            config.primaryColor = document.getElementById('cfg-primary').value;
+            config.bgColor = document.getElementById('cfg-bg').value;
+            config.layout = document.getElementById('cfg-layout').value;
+            config.menu = document.getElementById('cfg-menu').value.split(',').map(s => s.trim());
+
+            localStorage.setItem('portfolio_config', JSON.stringify(config));
+            applyConfig();
+            alert('Đã lưu cấu hình và đồng bộ thành công!');
+        }
+
+        function exportConfig() {
+            saveConfig();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "portfolio_config.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
