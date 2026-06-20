@@ -15,25 +15,31 @@
         @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 20px; } }
         @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 24px; } }
         
-        /* Tạo khoảng trống ngẫu nhiên mặc định cho các item */
-        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); position: relative; z-index: 1; }
+        /* Cấu hình các item ảnh mặc định */
+        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); position: relative; z-index: 1; }
 
-        /* HIỆU ỨNG TRUYỂN LÃM - CHỈ ÁP DỤNG TRÊN WEB PC */
+        /* LỚP PHỦ TỐI NỀN 40% TOÀN MÀN HÌNH - CHỈ HIỆN KHI HOVER TRÊN WEB PC */
         @media (min-width: 1024px) {
-            /* 1. Khi di chuột vào vùng lưới, tạo một lớp nền tối 40% gián tiếp bằng cách làm mờ các ảnh khác */
-            .masonry-grid:hover .masonry-item {
-                opacity: 0.4; /* Làm mờ/tối các ảnh xung quanh đi 40% */
-                filter: blur(1px);
+            body::before {
+                content: "";
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background-color: rgba(0, 0, 0, 0.4); /* Làm tối không gian xung quanh đi đúng 40% */
+                z-index: 45;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.4s ease;
+            }
+            /* Khi rê chuột vào bất kỳ bức ảnh nào thì kích hoạt lớp phủ tối toàn màn hình */
+            body:has(.masonry-item:hover)::before {
+                opacity: 1;
             }
             
-            /* 2. Cấu hình đặc biệt cho ảnh được trỏ chuột: PHÓNG TO CỰC ĐẠI VÀ BAY RA GIỮA MÀN HÌNH */
+            /* HIỆU ỨNG ẢNH PHÓNG TO CỰC ĐẠI VÀ NỔI BẬT Ở GIỮA LUỒNG NHÌN */
             .masonry-grid .masonry-item:hover {
-                opacity: 1 !important;
-                filter: blur(0px) !important;
-                z-index: 9999 !important; /* Đảm bảo nằm đè lên trên tất cả mọi thứ kể cả Header */
-                transform: scale(1.5) !important; /* Phóng to cực đại 50% */
-                box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95);
-                position: relative;
+                z-index: 9999 !important; /* Đè lên trên lớp phủ tối và cả thanh Header */
+                transform: scale(1.45) !important; /* Phóng to mạnh mẽ ra xung quanh từ tâm giữa */
+                box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95);
             }
         }
     </style>
@@ -53,7 +59,8 @@
         
         function getEmbedLink(url) {
             const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            return match && match[1] ? `https://lh3.googleusercontent.com/d/$${match[1]}=w1600-h1600` : url;
+            // ĐÃ SỬA: Thay thế số 1 lỗi thành dấu $ chuẩn cấu trúc link ảnh Google công khai
+            return match && match[1] ? `https://googleusercontent.com/profile/picture/4${match[1]}=w1600-h1600` : url;
         }
 
         window.onload = function() {
@@ -67,7 +74,6 @@
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
             
-            // Giữ nguyên thứ tự nạp gốc từ Drive
             renderPortfolio(config.items);
         }
 
@@ -78,14 +84,12 @@
                 return;
             }
 
-            // Mảng khoảng cách ngẫu nhiên cố định để tạo bố cục trồi sụt so le nghệ thuật (chỉ cho PC)
-            const webMargins = ["10px", "55px", "25px", "80px", "5px", "40px", "70px", "15px"];
+            // Danh sách khoảng cách lề ngẫu nhiên tạo độ so le trồi sụt phá cách cho bản Web PC
+            const webMargins = ["10px", "60px", "25px", "85px", "5px", "45px", "75px", "15px"];
 
             grid.innerHTML = items.map((item, idx) => {
                 const dl = getEmbedLink(item.link);
                 const isPC = window.innerWidth >= 1024;
-                
-                // Gán lề ngẫu nhiên cho từng ảnh để tạo bố cục phá cách phá bỏ sự đều nhau
                 const marginStyle = isPC ? webMargins[idx % webMargins.length] : "0px";
 
                 return `
