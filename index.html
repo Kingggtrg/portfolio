@@ -7,39 +7,50 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         :root { --bg-color: #0b0f19; }
-        body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; position: relative; }
         
-        /* Cấu hình lưới Masonry so le */
+        /* Cấu hình lưới Masonry */
         .masonry-grid { columns: 1; column-gap: 8px; transition: all 0.3s ease; }
-        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 12px; } }
-        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 20px; } }
-        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 24px; } }
+        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 16px; } }
+        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 24px; } }
+        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 32px; } }
         
-        /* Cấu hình các item ảnh mặc định */
-        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); position: relative; z-index: 1; }
+        .masonry-item { break-inside: avoid; margin-bottom: 24px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; z-index: 1; }
 
-        /* LỚP PHỦ TỐI NỀN 40% TOÀN MÀN HÌNH - CHỈ HIỆN KHI HOVER TRÊN WEB PC */
+        /* LỚP PHỦ TỐI NỀN 40% TOÀN MÀN HÌNH - CHỈ CHẠY TRÊN WEB PC */
         @media (min-width: 1024px) {
             body::before {
                 content: "";
                 position: fixed;
                 top: 0; left: 0; width: 100vw; height: 100vh;
-                background-color: rgba(0, 0, 0, 0.4); /* Làm tối không gian xung quanh đi đúng 40% */
-                z-index: 45;
+                background-color: rgba(0, 0, 0, 0.4);
+                z-index: 40;
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity 0.4s ease;
             }
-            /* Khi rê chuột vào bất kỳ bức ảnh nào thì kích hoạt lớp phủ tối toàn màn hình */
             body:has(.masonry-item:hover)::before {
                 opacity: 1;
             }
             
-            /* HIỆU ỨNG ẢNH PHÓNG TO CỰC ĐẠI VÀ NỔI BẬT Ở GIỮA LUỒNG NHÌN */
+            /* Khi tương tác vào lưới, làm mờ dịu các ảnh xung quanh */
+            .masonry-grid:hover .masonry-item {
+                opacity: 0.5;
+                filter: blur(0.5px);
+            }
+            
+            /* Ảnh được chọn sáng bừng, phóng cực to 50% từ tâm giữa và nổi lên trên cùng */
             .masonry-grid .masonry-item:hover {
-                z-index: 9999 !important; /* Đè lên trên lớp phủ tối và cả thanh Header */
-                transform: scale(1.45) !important; /* Phóng to mạnh mẽ ra xung quanh từ tâm giữa */
+                opacity: 1 !important;
+                filter: none !important;
+                z-index: 50 !important;
+                transform: scale(1.5) !important;
                 box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95);
+            }
+            
+            .portfolio-card { 
+                transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, opacity 0.4s ease, filter 0.4s ease;
+                transform-origin: center center;
             }
         }
     </style>
@@ -59,8 +70,7 @@
         
         function getEmbedLink(url) {
             const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            // ĐÃ SỬA: Thay thế số 1 lỗi thành dấu $ chuẩn cấu trúc link ảnh Google công khai
-            return match && match[1] ? `https://googleusercontent.com/profile/picture/4${match[1]}=w1600-h1600` : url;
+            return match && match[1] ? `https://lh3.googleusercontent.com/d/${match[1]}` : url;
         }
 
         window.onload = function() {
@@ -73,36 +83,44 @@
             document.getElementById('brand-title-el').innerText = config.brandTitle || "PORTFOLIO";
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
-            
             renderPortfolio(config.items);
         }
 
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào admin.html để quét folder nhé!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào trang quản trị để quét folder dữ liệu.</div>`;
                 return;
             }
 
-            // Danh sách khoảng cách lề ngẫu nhiên tạo độ so le trồi sụt phá cách cho bản Web PC
-            const webMargins = ["10px", "60px", "25px", "85px", "5px", "45px", "75px", "15px"];
+            // Khoảng cách trồi sụt ngẫu nhiên tạo bố cục so le nghệ thuật phá cách trên Web PC
+            const webMargins = ["10px", "50px", "20px", "80px", "0px", "35px", "65px", "15px"];
 
             grid.innerHTML = items.map((item, idx) => {
-                const dl = getEmbedLink(item.link);
                 const isPC = window.innerWidth >= 1024;
                 const marginStyle = isPC ? webMargins[idx % webMargins.length] : "0px";
 
-                return `
-                    <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" 
-                         style="margin-top: ${marginStyle};">
-                        <div class="relative bg-black flex items-center justify-center overflow-hidden">
-                            ${item.type === 'video' ? 
-                                `<video src="${item.link.replace('/view', '/preview')}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : 
-                                `<img src="${dl}" class="w-full h-auto object-cover" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">`
-                            }
+                if (item.type === 'video') {
+                    const videoUrl = item.link.match(/\/file\/d\/([^/]+)/) || item.link.match(/\/d\/([^/]+)/) || item.link.match(/id=([^&]+)/);
+                    const embedSrc = videoUrl ? `https://drive.google.com/file/d/${videoUrl[1]}/preview` : item.link;
+                    return `
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" style="margin-top: ${marginStyle};">
+                            <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
+                                <iframe src="${embedSrc}" class="w-full h-full border-0 pointer-events-none" allow="autoplay"></iframe>
+                                <div class="absolute inset-0 bg-transparent"></div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    const imgUrl = getEmbedLink(item.link);
+                    return `
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm" style="margin-top: ${marginStyle};">
+                            <div class="relative bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${imgUrl}" class="w-full h-auto object-cover" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
+                            </div>
+                        </div>
+                    `;
+                }
             }).join('');
         }
 
