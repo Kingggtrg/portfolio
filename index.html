@@ -8,126 +8,143 @@
     <style>
         :root {
             --primary-color: #3b82f6;
-            --bg-color: #111827;
+            --bg-color: #0b0f19;
             --text-color: #ffffff;
         }
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        /* Hiệu ứng Masonry giống Pinterest */
+        .masonry-grid {
+            columns: 1;
+            column-gap: 1.5rem;
+        }
+        @media (min-width: 640px) { .masonry-grid { columns: 2; } }
+        @media (min-width: 1024px) { .masonry-grid { columns: 3; } }
+        @media (min-width: 1280px) { .masonry-grid { columns: 4; } }
+        
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
 <body>
 
-    <header class="border-b border-gray-800 p-4 sticky top-0 bg-gray-900 bg-opacity-90 backdrop-blur z-40">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wider">PORTFOLIO</h1>
+    <header class="border-b border-gray-900 p-4 sticky top-0 bg-[#0b0f19] bg-opacity-80 backdrop-blur-md z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-widest text-white">PORTFOLIO</h1>
             <div class="flex items-center gap-6">
-                <nav id="menu-container" class="flex gap-4 text-sm font-medium">
+                <nav id="menu-container" class="flex gap-6 text-sm font-medium">
                     </nav>
-                <button onclick="toggleAdmin()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white px-2 py-1 rounded cursor-pointer">Admin</button>
+                <button onclick="toggleAdmin()" class="text-xs bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white px-3 py-1.5 rounded-full transition cursor-pointer">Admin</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 py-8">
-        <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <main class="max-w-7xl mx-auto p-4 py-8">
+        <div id="portfolio-grid" class="masonry-grid">
             </div>
     </main>
 
+    <div id="lightbox" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex flex-col items-center justify-center p-4 animate-fade-in" onclick="closeLightbox()">
+        <button class="absolute top-4 right-4 text-white hover:text-gray-300 text-3xl font-bold cursor-pointer transition">&times;</button>
+        <div class="max-w-5xl max-h-[85vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl hidden" alt="Zoom">
+            <video id="lightbox-video" src="" controls class="max-w-full max-h-[85vh] rounded shadow-2xl hidden"></video>
+        </div>
+        <div class="mt-4 text-center" onclick="event.stopPropagation()">
+            <h3 id="lightbox-title" class="text-lg font-bold text-white"></h3>
+            <p id="lightbox-cat" class="text-xs text-gray-400 mt-1 bg-gray-900 px-3 py-1 rounded-full inline-block"></p>
+        </div>
+    </div>
+
     <div id="admin-panel" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden overflow-y-auto p-6">
-        <div class="max-w-4xl mx-auto bg-gray-900 p-6 rounded-lg border border-gray-800 mt-10">
+        <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 mt-10 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-yellow-500">Bảng Điều Khiển Tùy Biến V2.0</h2>
-                <button onclick="toggleAdmin()" class="bg-red-600 hover:bg-red-700 px-4 py-1 rounded text-sm cursor-pointer">Đóng</button>
+                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Tùy Biến V2.1</h2>
+                <button onclick="toggleAdmin()" class="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-full text-xs font-bold transition cursor-pointer">Đóng Panel</button>
             </div>
 
-            <div id="admin-auth" class="mb-6">
-                <p class="mb-2 text-sm">Nhập mật khẩu Admin (Mặc định: 123456):</p>
+            <div id="admin-auth" class="mb-6 bg-gray-900 p-4 rounded-xl border border-gray-800">
+                <p class="mb-2 text-xs text-gray-400">Nhập mật khẩu Admin (Mặc định: 123456):</p>
                 <div class="flex gap-2">
-                    <input type="password" id="admin-pass" class="bg-gray-800 p-2 rounded flex-1 border border-gray-700 text-white">
-                    <button onclick="checkAuth()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded font-bold cursor-pointer">Đăng Nhập</button>
+                    <input type="password" id="admin-pass" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-800 text-white focus:border-blue-500 outline-none text-sm">
+                    <button onclick="checkAuth()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-sm font-bold transition cursor-pointer">Đăng Nhập</button>
                 </div>
             </div>
 
             <div id="admin-content" class="hidden space-y-6">
                 
-                <div class="border border-gray-800 p-4 rounded bg-gray-950">
-                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-yellow-400">Cấu Hình Google API Key (Bắt buộc để quét Folder)</h3>
+                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-500">Cấu Hình Google API Key (Bắt buộc để quét Folder)</h3>
                     <div class="flex gap-2">
-                        <input type="text" id="cfg-api-key" class="bg-gray-800 p-2 rounded flex-1 border border-gray-700 text-xs text-white" placeholder="Dán mã AIzaSy... vào đây">
-                        <button onclick="saveApiKey()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-xs font-bold cursor-pointer">Lưu API Key</button>
+                        <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white outline-none focus:border-yellow-500" placeholder="Dán mã AIzaSy... vào đây">
+                        <button onclick="saveApiKey()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer">Lưu API Key</button>
                     </div>
                 </div>
 
-                <div class="border border-gray-800 p-4 rounded bg-gray-950">
-                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-blue-400">1. Tùy Biến Giao Diện</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-blue-400">1. Tùy Biến Giao Diện</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs mb-1 text-gray-400">Màu chủ đạo:</label>
-                            <input type="color" id="cfg-primary" class="w-full h-10 rounded bg-transparent cursor-pointer">
+                            <label class="block text-xs mb-1 text-gray-400">Màu chủ đạo (Nút bấm, highlight):</label>
+                            <input type="color" id="cfg-primary" class="w-full h-10 rounded-lg bg-transparent cursor-pointer">
                         </div>
                         <div>
-                            <label class="block text-xs mb-1 text-gray-400">Màu nền web:</label>
-                            <input type="color" id="cfg-bg" class="w-full h-10 rounded bg-transparent cursor-pointer">
-                        </div>
-                        <div>
-                            <label class="block text-xs mb-1 text-gray-400">Bố cục hiển thị:</label>
-                            <select id="cfg-layout" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-sm text-white">
-                                <option value="grid-3">Chia 3 cột đều (Instagram)</option>
-                                <option value="grid-2">Chia 2 cột to</option>
-                                <option value="grid-4">Chia 4 cột nhỏ</option>
-                            </select>
+                            <label class="block text-xs mb-1 text-gray-400">Màu nền trang web:</label>
+                            <input type="color" id="cfg-bg" class="w-full h-10 rounded-lg bg-transparent cursor-pointer">
                         </div>
                     </div>
                 </div>
 
-                <div class="border border-gray-800 p-4 rounded bg-gray-950">
-                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-blue-400">2. Quản Lý Thanh Menu (Cách nhau bằng dấu phẩy)</h3>
-                    <input type="text" id="cfg-menu" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-sm text-white" placeholder="Ví dụ: Tất Cả, Hình Ảnh, Video TikTok">
+                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-blue-400">2. Quản Lý Thanh Menu (Cách nhau bằng dấu phẩy)</h3>
+                    <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-blue-500" placeholder="Ví dụ: Tất Cả, Hình Ảnh, Video TikTok">
                 </div>
 
-                <div class="border border-gray-800 p-4 rounded bg-gray-950">
-                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-green-400">3. Thêm Sản Phẩm Mới</h3>
+                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-green-400">3. Thêm Sản Phẩm Mới</h3>
                     
-                    <div class="bg-gray-900 p-3 rounded mb-4 border border-gray-800">
-                        <p class="text-xs text-green-400 font-bold mb-2">CÁCH 1: THÊM CẢ FOLDER GOOGLE DRIVE (Tự động nhận hết ảnh/video)</p>
-                        <div class="space-y-2">
-                            <input type="text" id="folder-link" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-xs text-white" placeholder="Dán link FOLDER Google Drive vào đây">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="text" id="folder-cat" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-xs text-white" placeholder="Thuộc Menu nào?">
-                                <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-xs font-bold cursor-pointer text-white">QUÉT & THÊM CẢ FOLDER</button>
+                    <div class="bg-gray-950 p-4 rounded-xl mb-4 border border-gray-900">
+                        <p class="text-xs text-green-400 font-bold mb-2">CÁCH 1: THÊM CẢ FOLDER GOOGLE DRIVE (Tự động dàn trải ảnh dọc/ngang)</p>
+                        <div class="space-y-3">
+                            <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Dán link FOLDER Google Drive vào đây">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input type="text" id="folder-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Thuộc Menu nào? (Ví dụ: Hình Ảnh)">
+                                <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-lg text-xs font-bold transition cursor-pointer text-white">QUÉT & THÊM CẢ FOLDER</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-900 p-3 rounded border border-gray-800">
+                    <div class="bg-gray-950 p-4 rounded-xl border border-gray-900">
                         <p class="text-xs text-blue-400 font-bold mb-2">CÁCH 2: THÊM TỪNG FILE LẺ TRUYỀN THỐNG</p>
                         <div class="space-y-3 text-xs">
-                            <input type="text" id="item-title" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Tiêu đề sản phẩm lẻ">
-                            <input type="text" id="item-link" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Dán link FILE lẻ chia sẻ từ Google Drive">
-                            <div class="grid grid-cols-2 gap-4">
-                                <select id="item-type" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white">
+                            <input type="text" id="item-title" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-white outline-none focus:border-blue-500" placeholder="Tiêu đề sản phẩm lẻ">
+                            <input type="text" id="item-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-white outline-none focus:border-blue-500" placeholder="Dán link FILE lẻ chia sẻ từ Google Drive">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <select id="item-type" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-white outline-none">
                                     <option value="image">Định dạng: Hình Ảnh</option>
                                     <option value="video">Định dạng: Video</option>
                                 </select>
-                                <input type="text" id="item-cat" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Thuộc Menu nào?">
+                                <input type="text" id="item-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-white outline-none focus:border-blue-500" placeholder="Thuộc Menu nào?">
+                                <input type="number" id="item-order" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-white outline-none" placeholder="Thứ tự sắp xếp (1, 2, 3...)">
                             </div>
-                            <input type="number" id="item-order" class="bg-gray-800 p-2 rounded w-full border border-gray-700 text-white" placeholder="Thứ tự sắp xếp (ví dụ: 1, 2, 3...)">
-                            <button onclick="addItem()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded w-full font-bold cursor-pointer">+ THÊM FILE LẺ</button>
+                            <button onclick="addItem()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2.5 rounded-lg w-full font-bold transition cursor-pointer">+ THÊM FILE LẺ</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="border border-gray-800 p-4 rounded bg-gray-950">
-                    <h3 class="font-bold mb-3 text-sm uppercase tracking-wider text-red-400">Danh Sách Sản Phẩm Đang Có</h3>
+                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
+                    <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-red-400">Danh Sách Sản Phẩm Đang Có</h3>
                     <div id="admin-items-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
 
                 <div class="flex gap-4">
-                    <button onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold flex-1 text-center cursor-pointer">1. BẤM LƯU ĐỂ XEM THỬ</button>
-                    <button onclick="exportConfig()" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded font-bold flex-1 text-center cursor-pointer">2. XUẤT FILE ĐỂ UP LÊN HOST</button>
+                    <button onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-bold flex-1 text-center transition cursor-pointer">1. BẤM LƯU ĐỂ XEM THỬ</button>
+                    <button onclick="exportConfig()" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold flex-1 text-center transition cursor-pointer">2. XUẤT FILE ĐỂ UP LÊN HOST</button>
                 </div>
             </div>
         </div>
@@ -137,8 +154,7 @@
         let config = {
             apiKey: "",
             primaryColor: "#3b82f6",
-            bgColor: "#111827",
-            layout: "grid-3",
+            bgColor: "#0b0f19",
             menu: ["Tất Cả", "Hình Ảnh", "Video"],
             items: []
         };
@@ -164,18 +180,11 @@
             document.documentElement.style.setProperty('--bg-color', config.bgColor);
             document.getElementById('cfg-primary').value = config.primaryColor;
             document.getElementById('cfg-bg').value = config.bgColor;
-            document.getElementById('cfg-layout').value = config.layout;
             document.getElementById('cfg-menu').value = config.menu.join(', ');
             document.getElementById('cfg-api-key').value = config.apiKey || "";
 
-            const grid = document.getElementById('portfolio-grid');
-            grid.className = "grid gap-6";
-            if (config.layout === 'grid-2') grid.classList.add('grid-cols-1', 'md:grid-cols-2');
-            else if (config.layout === 'grid-4') grid.classList.add('grid-cols-1', 'sm:grid-cols-2', 'md:grid-cols-4');
-            else grid.classList.add('grid-cols-1', 'md:grid-cols-3');
-
             const menuContainer = document.getElementById('menu-container');
-            menuContainer.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-300 font-medium">${m}</button>`).join('');
+            menuContainer.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
 
             config.items.sort((a,b) => (a.order || 0) - (b.order || 0));
             renderPortfolio(config.items);
@@ -185,26 +194,61 @@
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm">Chưa có sản phẩm nào. Hãy bấm nút Admin ở góc phải để cấu hình API Key và thêm Folder ảnh từ Google Drive của bạn!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Chưa có sản phẩm nào. Hãy bấm nút Admin ở góc phải để cấu hình và quét Folder nhé!</div>`;
                 return;
             }
-            grid.innerHTML = items.map(item => {
+            grid.innerHTML = items.map((item, idx) => {
                 const directLink = cleanDriveLink(item.link);
                 return `
-                    <div class="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden shadow-lg group">
-                        <div class="relative aspect-video bg-black flex items-center justify-center">
+                    <div class="masonry-item bg-gray-900 border border-gray-950 rounded-xl overflow-hidden shadow-lg group cursor-pointer transition duration-300 hover:border-gray-800" onclick="openLightbox(${idx})">
+                        <div class="relative bg-black flex items-center justify-center overflow-hidden">
                             ${item.type === 'video' ? 
-                                `<video src="${directLink}" controls class="w-full h-full object-cover"></video>` : 
-                                `<img src="${directLink}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${item.title}" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Image'">`
+                                `<video src="${directLink}" class="w-full h-auto object-cover pointer-events-none"></video>
+                                 <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition">
+                                    <svg class="w-12 h-12 text-white/80" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
+                                 </div>` : 
+                                `<img src="${directLink}" class="w-full h-auto object-cover group-hover:scale-[1.02] transition duration-500" alt="${item.title}" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Image_Error'">`
                             }
                         </div>
-                        <div class="p-4">
-                            <h4 class="font-semibold text-sm truncate text-white">${item.title}</h4>
-                            <span class="text-xs text-gray-400 mt-1 inline-block bg-gray-800 px-2 py-0.5 rounded">${item.category}</span>
+                        <div class="p-3 bg-gray-900">
+                            <h4 class="font-medium text-xs truncate text-gray-200">${item.title}</h4>
+                            <span class="text-[10px] text-gray-500 mt-1 inline-block bg-gray-950 px-2 py-0.5 rounded-md">${item.category}</span>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // HÀM PHÓNG TO SẢN PHẨM (LIGHTBOX)
+        function openLightbox(index) {
+            const item = config.items[index];
+            const directLink = cleanDriveLink(item.link);
+            
+            document.getElementById('lightbox-title').innerText = item.title;
+            document.getElementById('lightbox-cat').innerText = item.category;
+
+            const imgTag = document.getElementById('lightbox-img');
+            const videoTag = document.getElementById('lightbox-video');
+
+            if(item.type === 'video') {
+                imgTag.classList.add('hidden');
+                videoTag.classList.remove('hidden');
+                videoTag.src = directLink;
+                videoTag.play();
+            } else {
+                videoTag.classList.add('hidden');
+                videoTag.src = "";
+                imgTag.classList.remove('hidden');
+                imgTag.src = directLink;
+            }
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            const videoTag = document.getElementById('lightbox-video');
+            videoTag.pause();
+            videoTag.src = "";
+            document.getElementById('lightbox').classList.add('hidden');
         }
 
         function filterCategory(cat) {
@@ -235,7 +279,6 @@
             alert('Đã lưu Google API Key thành công!');
         }
 
-        // HÀM QUÉT FOLDER GOOGLE DRIVE XỊN XÒ
         async function addFolder() {
             const folderLink = document.getElementById('folder-link').value.trim();
             const category = document.getElementById('folder-cat').value.trim() || "Tất Cả";
@@ -243,25 +286,19 @@
             if(!config.apiKey) return alert("Vui lòng điền và lưu Google API Key ở mục phía trên trước nhé!");
             if(!folderLink) return alert("Vui lòng dán link Folder Google Drive!");
 
-            // Trích xuất Folder ID từ link
             const match = folderLink.match(/folders\/([^?/]+)/);
-            if(!match) return alert("Link Folder Drive không đúng định dạng rồi bạn ơi!");
+            if(!match) return alert("Link Folder Drive không đúng định dạng rồi!");
             const folderId = match[1];
 
-            alert("Đang tiến hành quét Folder Google Drive, vui lòng đợi một chút...");
+            alert("Đang tiến hành quét Folder Google Drive, vui lòng đợi...");
 
             try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${config.apiKey}`;
+                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${config.apiKey}&pageSize=100`;
                 const response = await fetch(url);
                 const data = await response.json();
 
-                if(data.error) {
-                    throw new Error(data.error.message);
-                }
-
-                if(!data.files || data.files.length === 0) {
-                    return alert("Không tìm thấy file nào trong Folder này. Hãy chắc chắn Folder đã được bật chế độ 'Chia sẻ công khai' nhé!");
-                }
+                if(data.error) throw new Error(data.error.message);
+                if(!data.files || data.files.length === 0) return alert("Không tìm thấy file hợp lệ nào.");
 
                 let count = 0;
                 data.files.forEach(file => {
@@ -271,7 +308,7 @@
                     if(isImage || isVideo) {
                         const fileLink = `https://drive.google.com/file/d/${file.id}/view`;
                         config.items.push({
-                            title: file.name.split('.')[0], // Lấy tên file bỏ đuôi mở rộng
+                            title: file.name.split('.')[0],
                             link: fileLink,
                             type: isVideo ? 'video' : 'image',
                             category: category,
@@ -284,11 +321,10 @@
                 document.getElementById('folder-link').value = '';
                 renderAdminItems();
                 applyConfig();
-                alert(`Thành công! Đã quét và tự động thêm ${count} file từ Folder vào Portfolio. Đừng quên bấm nút LƯU MÀU XANH ở dưới cùng nhé!`);
+                alert(`Đã quét xong! Thêm thành công ${count} sản phẩm với bố cục Pinterest. Hãy bấm nút LƯU MÀU XANH ở dưới cùng nhé!`);
 
             } catch (error) {
-                console.error(error);
-                alert("Lỗi khi quét Folder: " + error.message + "\nHãy kiểm tra xem API Key chuẩn chưa và Folder đã bật công khai chưa nhé.");
+                alert("Lỗi khi quét: " + error.message);
             }
         }
 
@@ -306,7 +342,7 @@
             document.getElementById('item-link').value = '';
             renderAdminItems();
             applyConfig();
-            alert('Đã thêm file lẻ! Nhớ bấm nút LƯU ở dưới cùng nha.');
+            alert('Đã thêm! Nhớ bấm nút LƯU ở dưới cùng nha.');
         }
 
         function deleteItem(index) {
@@ -318,8 +354,8 @@
         function renderAdminItems() {
             const list = document.getElementById('admin-items-list');
             list.innerHTML = config.items.map((item, index) => `
-                <div class="flex justify-between items-center bg-gray-800 p-2 rounded text-xs text-gray-300">
-                    <span>[STT: ${item.order}] ${item.title} (${item.category}) - ${item.type}</span>
+                <div class="flex justify-between items-center bg-gray-900 p-2 rounded text-xs text-gray-400 border border-gray-800">
+                    <span>${item.title} (${item.category})</span>
                     <button onclick="deleteItem(${index})" class="text-red-500 font-bold px-2 cursor-pointer">Xóa</button>
                 </div>
             `).join('');
@@ -328,7 +364,6 @@
         function saveConfig() {
             config.primaryColor = document.getElementById('cfg-primary').value;
             config.bgColor = document.getElementById('cfg-bg').value;
-            config.layout = document.getElementById('cfg-layout').value;
             config.menu = document.getElementById('cfg-menu').value.split(',').map(s => s.trim());
 
             localStorage.setItem('portfolio_config', JSON.stringify(config));
