@@ -6,15 +6,16 @@
     <title>Admin - Portfolio Customizer</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-[#0b0f19] text-white font-family: system-ui, -apple-system, sans-serif; p-6">
-    <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 mt-6 shadow-2xl">
+<body class="bg-[#0b0f19] text-white font-sans p-6">
+    <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 shadow-2xl">
         <div class="flex justify-between items-center mb-6 border-b border-gray-900 pb-4">
             <div>
-                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Quản Trị V4.1</h2>
-                <p class="text-xs text-gray-500 mt-1">Hệ thống quản lý danh mục và giao diện độc lập</p>
+                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Quản Trị V5.0</h2>
+                <p class="text-xs text-gray-500 mt-1">Đồng bộ dữ liệu và cấu hình giao diện</p>
             </div>
             <a href="index.html" class="bg-gray-900 hover:bg-gray-800 border border-gray-800 px-4 py-1.5 rounded-full text-xs font-medium transition">Xem Trang Chủ →</a>
         </div>
+        
         <div id="admin-auth" class="mb-6 bg-gray-900 p-4 rounded-xl border border-gray-800">
             <p class="mb-2 text-xs text-gray-400">Nhập mật khẩu quyền Admin (Mặc định: 123456):</p>
             <div class="flex gap-2">
@@ -22,10 +23,11 @@
                 <button onclick="checkAuth()" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-2 rounded-lg text-sm font-bold transition cursor-pointer">Đăng Nhập</button>
             </div>
         </div>
+
         <div id="admin-content" class="hidden space-y-6">
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-1 text-xs uppercase tracking-wider text-purple-400">1. Tùy Biến Tên Thương Hiệu</h3>
-                <input type="text" id="cfg-title" class="bg-gray-950 p-2.5 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-purple-500" placeholder="Ví dụ: HOÀNG TRƯƠNG">
+                <input type="text" id="cfg-title" class="bg-gray-950 p-2.5 rounded-lg w-full border border-gray-900 text-xs text-white outline-none" placeholder="Ví dụ: HOÀNG TRƯƠNG">
             </div>
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">2. Cấu Hình Google API Key</h3>
@@ -36,22 +38,22 @@
             </div>
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-blue-400">3. Quản Lý Menu (Cách nhau bằng dấu phẩy)</h3>
-                <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-blue-500">
+                <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white outline-none">
             </div>
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-green-400">4. Thêm Sản Phẩm Từ Google Drive</h3>
                 <div class="bg-gray-950 p-4 rounded-xl border border-gray-900 space-y-3">
-                    <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Dán link FOLDER Google Drive vào đây">
+                    <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none" placeholder="Dán link FOLDER Google Drive">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="folder-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Thuộc nhóm nào? (Ví dụ: Hình Ảnh)">
-                        <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-lg text-xs font-bold text-white transition cursor-pointer">QUÉT & THÊM TOÀN BỘ FOLDER</button>
+                        <input type="text" id="folder-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none" placeholder="Thuộc nhóm nào?">
+                        <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-lg text-xs font-bold text-white transition cursor-pointer">QUÉT & THÊM FOLDER</button>
                     </div>
                 </div>
             </div>
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-xs uppercase tracking-wider text-red-400">5. Danh Sách Kho Ảnh Hiện Tại</h3>
-                    <button onclick="clearAllItems()" class="bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 hover:text-red-300 px-3 py-1 rounded text-[10px] font-bold transition cursor-pointer">⚠️ XÓA TẤT CẢ SẢN PHẨM</button>
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-red-400">5. Kho Lưu Trữ Hiện Tại</h3>
+                    <button onclick="clearAllItems()" class="bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1 rounded text-[10px] font-bold transition cursor-pointer">⚠️ XÓA TẤT CẢ SẢN PHẨM</button>
                 </div>
                 <div id="admin-items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
             </div>
@@ -85,7 +87,7 @@
         async function addFolder() {
             const folderLink = document.getElementById('folder-link').value.trim();
             const category = document.getElementById('folder-cat').value.trim() || "Tất Cả";
-            if(!config.apiKey) return alert("Vui lòng điền và lưu API Key ở mục số 2 trước!");
+            if(!config.apiKey) return alert("Vui lòng lưu API Key ở mục số 2 trước!");
             const match = folderLink.match(/folders\/([^?/]+)/);
             if(!match) return alert("Link folder Google Drive không đúng cấu trúc!");
             try {
@@ -111,7 +113,7 @@
                 document.getElementById('folder-link').value = '';
                 localStorage.setItem('portfolio_config', JSON.stringify(config));
                 renderAdminItemsList();
-                alert(`Quét xong! Đã nạp thành công thêm ${count} sản phẩm.`);
+                alert(`Quét xong! Đã nạp thành công ${count} sản phẩm.`);
             } catch (e) { alert("Lỗi: " + e.message); }
         }
         function deleteItem(index) {
