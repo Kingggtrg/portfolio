@@ -11,8 +11,8 @@
     <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 mt-6 shadow-2xl">
         <div class="flex justify-between items-center mb-6 border-b border-gray-900 pb-4">
             <div>
-                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Trang Trí V4.0</h2>
-                <p class="text-xs text-gray-500 mt-1">Hệ thống quản trị danh mục độc lập</p>
+                <h2 class="text-xl font-bold text-yellow-500 tracking-wide">Bảng Điều Khiển Quản Trị V4.0</h2>
+                <p class="text-xs text-gray-500 mt-1">Hệ thống quản lý danh mục và giao diện độc lập</p>
             </div>
             <a href="index.html" class="bg-gray-900 hover:bg-gray-800 border border-gray-800 px-4 py-1.5 rounded-full text-xs font-medium transition">Xem Trang Chủ →</a>
         </div>
@@ -25,18 +25,18 @@
             </div>
         </div>
 
-        <div id="admin-content" class="hidden space-y-6 animate-fade-in">
+        <div id="admin-content" class="hidden space-y-6">
             
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-1 text-xs uppercase tracking-wider text-purple-400">1. Tùy Biến Tên Thương Hiệu</h3>
-                <p class="text-[11px] text-gray-500 mb-3">Thay đổi dòng chữ PORTFOLIO ở góc trái trang chủ thành tên của bạn.</p>
-                <input type="text" id="cfg-title" class="bg-gray-950 p-2.5 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-purple-500" placeholder="Ví dụ: HOÀNG TRƯƠNG / STONK MEDIA">
+                <p class="text-[11px] text-gray-500 mb-3">Thay đổi dòng chữ PORTFOLIO ở góc trái trang chủ thành tên cá nhân của bạn.</p>
+                <input type="text" id="cfg-title" class="bg-gray-950 p-2.5 rounded-lg w-full border border-gray-900 text-xs text-white outline-none focus:border-purple-500" placeholder="Ví dụ: HOÀNG TRƯƠNG">
             </div>
 
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
-                <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">2. Cấu Hình Google API Key (Bắt buộc để quét ảnh)</h3>
+                <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-yellow-400">2. Cấu Hình Google API Key</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white outline-none focus:border-yellow-500" placeholder="Dán mã AIzaSy... vào đây">
+                    <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white outline-none focus:border-yellow-500" placeholder="Mã AIzaSy...">
                     <button onclick="saveApiKey()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer">Lưu Key</button>
                 </div>
             </div>
@@ -49,7 +49,7 @@
             <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
                 <h3 class="font-bold mb-3 text-xs uppercase tracking-wider text-green-400">4. Thêm Sản Phẩm Từ Google Drive</h3>
                 <div class="bg-gray-950 p-4 rounded-xl border border-gray-900 space-y-3">
-                    <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Dán link FOLDER Google Drive chứa hình ảnh/video vào đây">
+                    <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Dán link FOLDER Google Drive vào đây">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" id="folder-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white outline-none focus:border-green-500" placeholder="Thuộc nhóm nào? (Ví dụ: Hình Ảnh)">
                         <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-lg text-xs font-bold text-white transition cursor-pointer">QUÉT & THÊM TOÀN BỘ FOLDER</button>
@@ -62,8 +62,7 @@
                     <h3 class="font-bold text-xs uppercase tracking-wider text-red-400">5. Danh Sách Kho Ảnh Hiện Tại</h3>
                     <button onclick="clearAllItems()" class="bg-red-950 hover:bg-red-900 border border-red-800 text-red-400 hover:text-red-300 px-3 py-1 rounded text-[10px] font-bold transition cursor-pointer">⚠️ XÓA TẤT CẢ SẢN PHẨM</button>
                 </div>
-                <div id="admin-items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    </div>
+                <div id="admin-items-list" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
             </div>
 
             <button onclick="saveAllConfig()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl w-full text-center text-sm shadow-xl tracking-wide transition cursor-pointer block">💾 BẤM LƯU ĐỂ ĐỒNG BỘ TOÀN BỘ WEBSITE</button>
