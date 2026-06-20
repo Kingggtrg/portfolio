@@ -15,7 +15,7 @@
         .masonry-item { break-inside: avoid; margin-bottom: 4px; }
         @media (min-width: 1024px) {
             .portfolio-card { transition: transform 0.3s ease, box-shadow 0.3s ease; z-index: 1; }
-            .portfolio-card:hover { transform: scale(1.08); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.8); z-index: 30; position: relative; }
+            .portfolio-card:hover { transform: scale(1.05); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.8); z-index: 30; position: relative; }
         }
     </style>
 </head>
@@ -31,10 +31,16 @@
     </main>
     <script>
         let config = { brandTitle: "PORTFOLIO", apiKey: "", menu: ["Tất Cả", "Hình Ảnh", "Video"], items: [] };
-        function cleanDriveLink(url) {
+        
+        function getEmbedLink(url) {
             const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            return match && match[1] ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
+            if (match && match[1]) {
+                // Chuyển sang dùng link thumbnail chất lượng cao để bypass bộ lọc chặn của Google
+                return `https://lh3.googleusercontent.com/u/0/d/${match[1]}=w1600-h1600`;
+            }
+            return url;
         }
+
         function init() {
             const saved = localStorage.getItem('portfolio_config');
             if (saved) config = JSON.parse(saved);
@@ -54,11 +60,14 @@
                 return;
             }
             grid.innerHTML = items.map((item) => {
-                const dl = cleanDriveLink(item.link);
+                const dl = getEmbedLink(item.link);
                 return `
                     <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm">
                         <div class="relative bg-black flex items-center justify-center overflow-hidden">
-                            ${item.type === 'video' ? `<video src="${dl}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : `<img src="${dl}" class="w-full h-auto object-cover" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">`}
+                            ${item.type === 'video' ? 
+                                `<video src="${item.link.replace('/view', '/preview')}" class="w-full h-auto object-cover pointer-events-none" autoplay loop muted playsinline></video>` : 
+                                `<img src="${dl}" class="w-full h-auto object-cover" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">`
+                            }
                         </div>
                     </div>
                 `;
