@@ -45,11 +45,8 @@
 
     <header class="border-b border-gray-950 p-4 sticky top-0 bg-[#0b0f19] bg-opacity-85 backdrop-blur-md z-40">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-widest text-white">PORTFOLIO</h1>
-            <div class="flex items-center gap-6">
-                <nav id="menu-container" class="flex gap-6 text-sm font-medium"></nav>
-                <button onclick="toggleAdmin()" class="text-xs bg-gray-900 text-gray-400 hover:text-white px-3 py-1.5 rounded-full cursor-pointer">Admin</button>
-            </div>
+            <h1 id="brand-title-el" class="text-xl font-bold tracking-widest text-white">PORTFOLIO</h1>
+            <nav id="menu-container" class="flex gap-6 text-sm font-medium"></nav>
         </div>
     </header>
 
@@ -57,74 +54,32 @@
         <div id="portfolio-grid" class="masonry-grid"></div>
     </main>
 
-    <div id="admin-panel" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden overflow-y-auto p-6">
-        <div class="max-w-4xl mx-auto bg-gray-950 p-6 rounded-2xl border border-gray-900 mt-10">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-yellow-500">Bảng Điều Khiển Tùy Biến V3.2</h2>
-                <button onclick="toggleAdmin()" class="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer">Đóng</button>
-            </div>
-            <div id="admin-auth" class="mb-6 bg-gray-900 p-4 rounded-xl border border-gray-800">
-                <p class="mb-2 text-xs text-gray-400">Mật khẩu Admin (123456):</p>
-                <div class="flex gap-2">
-                    <input type="password" id="admin-pass" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-800 text-white outline-none">
-                    <button onclick="checkAuth()" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-sm font-bold cursor-pointer">Đăng Nhập</button>
-                </div>
-            </div>
-            <div id="admin-content" class="hidden space-y-6">
-                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
-                    <h3 class="font-bold mb-3 text-xs uppercase text-yellow-400">Cấu Hình Google API Key</h3>
-                    <div class="flex gap-2">
-                        <input type="text" id="cfg-api-key" class="bg-gray-950 p-2 rounded-lg flex-1 border border-gray-900 text-xs text-white" placeholder="Mã AIzaSy...">
-                        <button onclick="saveApiKey()" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-lg text-xs font-bold cursor-pointer">Lưu Key</button>
-                    </div>
-                </div>
-                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
-                    <h3 class="font-bold mb-3 text-xs uppercase text-blue-400">Quản Lý Menu (Cách nhau bằng dấu phẩy)</h3>
-                    <input type="text" id="cfg-menu" class="bg-gray-950 p-2 rounded-lg w-full border border-gray-900 text-xs text-white">
-                </div>
-                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
-                    <h3 class="font-bold mb-3 text-xs uppercase text-green-400">Thêm Folder Google Drive</h3>
-                    <div class="space-y-3">
-                        <input type="text" id="folder-link" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white" placeholder="Link Folder Drive">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" id="folder-cat" class="bg-gray-900 p-2.5 rounded-lg w-full border border-gray-800 text-xs text-white" placeholder="Thuộc Menu nào?">
-                            <button onclick="addFolder()" class="bg-green-600 hover:bg-green-700 px-4 py-2.5 rounded-lg text-xs font-bold text-white cursor-pointer">QUÉT FOLDER</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="border border-gray-900 p-4 rounded-xl bg-gray-900/40">
-                    <h3 class="font-bold mb-3 text-xs uppercase text-red-400">Danh Sách Sản Phẩm</h3>
-                    <div id="admin-items-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
-                </div>
-                <button onclick="saveConfig()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-bold w-full cursor-pointer">BẤM LƯU ĐỂ ĐỒNG BỘ WEB</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        let config = { apiKey: "", menu: ["Tất Cả", "Hình Ảnh", "Video"], items: [] };
+        let config = { brandTitle: "PORTFOLIO", apiKey: "", menu: ["Tất Cả", "Hình Ảnh", "Video"], items: [] };
+        
         function cleanDriveLink(url) {
             const match = url.match(/\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
-            return match && match[1] ? `https://lh3.googleusercontent.com/d/$${match[1]}` : url;
+            return match && match[1] ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
         }
+
         function init() {
             const saved = localStorage.getItem('portfolio_config');
             if (saved) config = JSON.parse(saved);
             applyConfig();
         }
+
         function applyConfig() {
-            document.getElementById('cfg-menu').value = config.menu.join(', ');
-            document.getElementById('cfg-api-key').value = config.apiKey || "";
+            document.getElementById('brand-title-el').innerText = config.brandTitle || "PORTFOLIO";
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
             config.items.sort((a,b) => (a.order || 0) - (b.order || 0));
             renderPortfolio(config.items);
-            renderAdminItems();
         }
+
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Chưa có sản phẩm. Vào Admin để quét Folder!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Chưa có sản phẩm hiển thị. Hãy vào trang admin.html để quét folder sản phẩm nhé!</div>`;
                 return;
             }
             grid.innerHTML = items.map((item) => {
@@ -141,60 +96,12 @@
                 `;
             }).join('');
         }
+
         function filterCategory(cat) {
-            if (cat === 'Tất Cả') renderPortfolio(config.items);
+            if (cat === 'Tất Cả' || cat === 'All') renderPortfolio(config.items);
             else renderPortfolio(config.items.filter(i => i.category.toLowerCase() === cat.toLowerCase()));
         }
-        function toggleAdmin() { document.getElementById('admin-panel').classList.toggle('hidden'); }
-        function checkAuth() {
-            if (document.getElementById('admin-pass').value === '123456') {
-                document.getElementById('admin-auth').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
-            } else { alert('Sai mật khẩu!'); }
-        }
-        function saveApiKey() {
-            config.apiKey = document.getElementById('cfg-api-key').value.trim();
-            localStorage.setItem('portfolio_config', JSON.stringify(config));
-            alert('Đã lưu API Key!');
-        }
-        async function addFolder() {
-            const fl = document.getElementById('folder-link').value.trim();
-            const cat = document.getElementById('folder-cat').value.trim() || "Tất Cả";
-            if(!config.apiKey || !fl) return alert("Điền đủ API Key và Link Folder!");
-            const match = fl.match(/folders\/([^?/]+)/);
-            if(!match) return alert("Link không đúng định dạng!");
-            try {
-                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${match[1]}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${config.apiKey}&pageSize=100`);
-                const data = await res.json();
-                if(data.error) throw new Error(data.error.message);
-                let count = 0;
-                data.files.forEach(f => {
-                    const isV = f.mimeType.includes('video');
-                    if(f.mimeType.includes('image') || isV) {
-                        config.items.push({ title: f.name.split('.')[0], link: `https://drive.google.com/file/d/${f.id}/view`, type: isV ? 'video' : 'image', category: cat, order: 10 });
-                        count++;
-                    }
-                });
-                document.getElementById('folder-link').value = '';
-                applyConfig();
-                alert(`Thành công! Đã thêm ${count} sản phẩm.`);
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
-        function deleteItem(index) { config.items.splice(index, 1); applyConfig(); }
-        function renderAdminItems() {
-            document.getElementById('admin-items-list').innerHTML = config.items.map((item, index) => `
-                <div class="flex justify-between items-center bg-gray-900 p-2 rounded text-xs text-gray-400 border border-gray-800">
-                    <span>${item.title} (${item.category})</span>
-                    <button onclick="deleteItem(${index})" class="text-red-500 font-bold px-2 cursor-pointer">Xóa</button>
-                </div>
-            `).join('');
-        }
-        function saveConfig() {
-            config.menu = document.getElementById('cfg-menu').value.split(',').map(s => s.trim());
-            localStorage.setItem('portfolio_config', JSON.stringify(config));
-            applyConfig();
-            alert('Đã đồng bộ giao diện!');
-        }
+
         window.onload = init;
     </script>
 </body>
