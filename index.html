@@ -9,41 +9,40 @@
         :root { --bg-color: #0b0f19; }
         body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; position: relative; }
         
-        /* HỆ THỐNG LƯỚI KHÍT 4PX VÀ ÉP CHIỀU CAO ĐỂ TẠO ẢNH TO/NHỎ LỒNG NHAU */
-        .complex-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            grid-auto-rows: 150px; /* Bắt buộc: Chiều cao cơ sở để tính tỷ lệ phóng to */
-            gap: 4px; 
-            grid-auto-flow: dense; /* Tự lấp đầy khoảng trống */
-        }
-        @media (min-width: 640px) { .complex-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 180px; } }
-        @media (min-width: 1024px) { .complex-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 220px; } }
-        @media (min-width: 1280px) { .complex-grid { grid-template-columns: repeat(5, 1fr); grid-auto-rows: 250px; } }
+        /* Lưới Masonry sát rạt 4px */
+        .masonry-grid { columns: 1; column-gap: 4px; transition: all 0.3s ease; }
+        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 4px; } }
+        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 4px; } }
+        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 4px; } }
         
-        /* Cấu hình các size ảnh ngẫu nhiên */
-        .span-normal { grid-column: span 1; grid-row: span 1; }
-        .span-tall { grid-column: span 1; grid-row: span 2; } /* Ảnh dọc, cao gấp đôi */
-        .span-wide { grid-column: span 2; grid-row: span 1; } /* Ảnh ngang, rộng gấp đôi */
-        .span-big { grid-column: span 2; grid-row: span 2; } /* Ảnh siêu to (điểm nhấn) */
+        .masonry-item { break-inside: avoid; margin-bottom: 4px; transition: all 0.4s ease; position: relative; z-index: 1; cursor: pointer; }
 
-        .grid-card { position: relative; overflow: hidden; cursor: pointer; width: 100%; height: 100%; border-radius: 2px; }
-        .grid-card img, .grid-card iframe { width: 100%; height: 100%; object-fit: cover; border: none; pointer-events: none; }
-
-        /* HIỆU ỨNG HOVER TỐI NỀN 40% VÀ NỔI ẢNH (WEB PC) */
+        /* HIỆU ỨNG HOVER TRÊN WEB PC: Tối 40% và Hiện Tên */
         @media (min-width: 1024px) {
             body::before {
-                content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background-color: rgba(0, 0, 0, 0.4); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+                content: "";
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background-color: rgba(0, 0, 0, 0.4);
+                z-index: 40;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.4s ease;
             }
-            body:has(.grid-card:hover)::before { opacity: 1; }
-            .complex-grid:hover .grid-card { opacity: 0.5; filter: blur(0.5px); transition: all 0.3s ease; }
-            .complex-grid .grid-card:hover {
-                opacity: 1 !important; filter: none !important; z-index: 50 !important;
-                transform: scale(1.03) !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            body:has(.masonry-item:hover)::before { opacity: 1; }
+            
+            .masonry-grid:hover .masonry-item { opacity: 0.5; filter: blur(0.5px); }
+            
+            .masonry-grid .masonry-item:hover {
+                opacity: 1 !important;
+                filter: none !important;
+                z-index: 50 !important;
+                transform: scale(1.03) !important;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
             }
-            .grid-card .hover-info { opacity: 0; transition: opacity 0.3s ease; }
-            .grid-card:hover .hover-info { opacity: 1; }
+
+            .masonry-item .hover-info { opacity: 0; transition: opacity 0.3s ease; }
+            .masonry-item:hover .hover-info { opacity: 1; }
         }
     </style>
 </head>
@@ -55,15 +54,15 @@
         </div>
     </header>
     
-    <main class="max-w-7xl mx-auto p-1 py-4">
-        <div id="portfolio-grid" class="complex-grid"></div>
+    <main class="max-w-7xl mx-auto p-2 py-6">
+        <div id="portfolio-grid" class="masonry-grid"></div>
     </main>
 
     <div id="lightbox" class="fixed inset-0 bg-black/90 z-[9999] hidden flex-col items-center justify-center backdrop-blur-md transition-opacity duration-300 opacity-0" onclick="closeLightbox()">
         <button onclick="closeLightbox()" class="absolute top-6 right-8 text-white text-4xl hover:text-red-500 cursor-pointer transition z-50">&times;</button>
         <div class="relative flex flex-col items-center justify-center w-[90vw] md:w-[60vw] h-[80vh] md:h-[60vh]" onclick="event.stopPropagation()">
             <div id="lightbox-content" class="w-full h-full flex items-center justify-center relative"></div>
-            <div id="lightbox-caption" class="absolute -bottom-10 text-center w-full text-white text-sm md:text-lg font-medium tracking-wide uppercase"></div>
+            <div id="lightbox-caption" class="absolute -bottom-10 text-center w-full text-white text-lg md:text-xl font-medium tracking-wide uppercase"></div>
         </div>
     </div>
 
@@ -93,20 +92,16 @@
         function renderPortfolio(items) {
             const grid = document.getElementById('portfolio-grid');
             if(items.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào admin.html để quét folder nhé!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 text-sm w-full">Kho ảnh trống. Hãy vào trang quản trị để quét folder dữ liệu.</div>`;
                 return;
             }
 
-            // Tỷ lệ phân bổ: Ảnh siêu to và ảnh dọc/ngang đan xen ảnh nhỏ
-            const layouts = ["span-normal", "span-tall", "span-normal", "span-big", "span-normal", "span-wide", "span-normal", "span-normal"];
-
-            grid.innerHTML = items.map((item, idx) => {
+            grid.innerHTML = items.map((item) => {
                 const imgUrl = getEmbedLink(item.link);
+                // Loại bỏ ký tự đặc biệt để không lỗi hàm JS
                 const safeTitle = item.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 const safeCat = item.category.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                
-                // Gán tỷ lệ khung ngẫu nhiên
-                const chosenClass = layouts[idx % layouts.length];
+                const safeImgUrl = imgUrl.replace(/'/g, "\\'");
 
                 if (item.type === 'video') {
                     const videoUrl = item.link.match(/\/file\/d\/([^/]+)/) || item.link.match(/\/d\/([^/]+)/) || item.link.match(/id=([^&]+)/);
@@ -114,21 +109,24 @@
                     const safeEmbed = embedSrc.replace(/'/g, "\\'");
                     
                     return `
-                        <div class="grid-card bg-black shadow-sm ${chosenClass}" onclick="openLightbox('${safeEmbed}', '${safeTitle}', '${safeCat}', 'video')">
-                            <iframe src="${embedSrc}" allow="autoplay"></iframe>
-                            <div class="absolute inset-0 bg-transparent"></div>
-                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent z-10">
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm group" onclick="openLightbox('${safeEmbed}', '${safeTitle}', '${safeCat}', 'video')">
+                            <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden">
+                                <iframe src="${embedSrc}" class="w-full h-full border-0 pointer-events-none" allow="autoplay"></iframe>
+                                <div class="absolute inset-0 bg-transparent"></div>
+                            </div>
+                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent pointer-events-none">
                                 <p class="text-yellow-400 text-[10px] uppercase font-bold tracking-widest">${item.category}</p>
                                 <p class="text-white text-xs tracking-wider">${item.title}</p>
                             </div>
                         </div>
                     `;
                 } else {
-                    const safeImgUrl = imgUrl.replace(/'/g, "\\'");
                     return `
-                        <div class="grid-card bg-black shadow-sm ${chosenClass}" onclick="openLightbox('${safeImgUrl}', '${safeTitle}', '${safeCat}', 'image')">
-                            <img src="${imgUrl}" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
-                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent z-10">
+                        <div class="masonry-item portfolio-card bg-black rounded-sm overflow-hidden border border-transparent shadow-sm group" onclick="openLightbox('${safeImgUrl}', '${safeTitle}', '${safeCat}', 'image')">
+                            <div class="relative bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${imgUrl}" class="w-full h-auto object-cover" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
+                            </div>
+                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent pointer-events-none">
                                 <p class="text-yellow-400 text-[10px] uppercase font-bold tracking-widest">${item.category}</p>
                                 <p class="text-white text-xs tracking-wider">${item.title}</p>
                             </div>
@@ -148,7 +146,7 @@
             }
         }
 
-        /* LOGIC ĐIỀU KHIỂN POPUP 60% */
+        /* LOGIC ĐIỀU KHIỂN HỘP ĐÈN (POPUP) */
         function openLightbox(src, title, category, type) {
             const lb = document.getElementById('lightbox');
             const content = document.getElementById('lightbox-content');
@@ -163,7 +161,8 @@
                 content.innerHTML = `<img src="${src}" class="max-w-full max-h-full object-contain rounded shadow-2xl">`;
             }
             
-            caption.innerHTML = `<span class="text-yellow-500 font-bold">[ ${category} ]</span> <span class="text-gray-400">/</span> ${title}`;
+            // Format chữ: [TÊN FOLDER] - TÊN ẢNH
+            caption.innerHTML = `<span class="text-yellow-500 font-bold">[ ${category} ]</span> <span class="text-gray-300">/</span> ${title}`;
         }
 
         function closeLightbox() {
