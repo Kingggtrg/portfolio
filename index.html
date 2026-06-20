@@ -7,38 +7,43 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         :root { --bg-color: #0b0f19; }
-        body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; }
+        body { background-color: var(--bg-color); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; overflow-x: hidden; position: relative; }
         
-        /* LƯỚI MASONRY: Đảm bảo giữ nguyên 100% tỉ lệ gốc của ảnh */
-        .masonry-grid { columns: 1; column-gap: 8px; }
-        @media (min-width: 640px) { .masonry-grid { columns: 2; column-gap: 12px; } }
-        @media (min-width: 1024px) { .masonry-grid { columns: 3; column-gap: 16px; } }
-        @media (min-width: 1280px) { .masonry-grid { columns: 4; column-gap: 16px; } }
+        /* HỆ THỐNG LƯỚI KHÍT 4PX VÀ ÉP CHIỀU CAO ĐỂ TẠO ẢNH TO/NHỎ LỒNG NHAU */
+        .complex-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            grid-auto-rows: 150px; /* Bắt buộc: Chiều cao cơ sở để tính tỷ lệ phóng to */
+            gap: 4px; 
+            grid-auto-flow: dense; /* Tự lấp đầy khoảng trống */
+        }
+        @media (min-width: 640px) { .complex-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 180px; } }
+        @media (min-width: 1024px) { .complex-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 220px; } }
+        @media (min-width: 1280px) { .complex-grid { grid-template-columns: repeat(5, 1fr); grid-auto-rows: 250px; } }
         
-        .masonry-item { 
-            break-inside: avoid; 
-            margin-bottom: 16px; 
-            cursor: pointer;
-        }
+        /* Cấu hình các size ảnh ngẫu nhiên */
+        .span-normal { grid-column: span 1; grid-row: span 1; }
+        .span-tall { grid-column: span 1; grid-row: span 2; } /* Ảnh dọc, cao gấp đôi */
+        .span-wide { grid-column: span 2; grid-row: span 1; } /* Ảnh ngang, rộng gấp đôi */
+        .span-big { grid-column: span 2; grid-row: span 2; } /* Ảnh siêu to (điểm nhấn) */
 
-        .image-container {
-            overflow: hidden;
-            border-radius: 4px;
-            position: relative;
-            background-color: #000;
-        }
+        .grid-card { position: relative; overflow: hidden; cursor: pointer; width: 100%; height: 100%; border-radius: 2px; }
+        .grid-card img, .grid-card iframe { width: 100%; height: 100%; object-fit: cover; border: none; pointer-events: none; }
 
-        .image-container img, .image-container iframe {
-            width: 100%;
-            height: auto; /* Chiều cao tự động để giữ nguyên tỉ lệ khung hình gốc */
-            display: block;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* HOVER: Phóng to đúng 30% (scale 1.3) bên trong khung và không hiện chữ */
-        .masonry-item:hover .image-container img,
-        .masonry-item:hover .image-container iframe {
-            transform: scale(1.3);
+        /* HIỆU ỨNG HOVER TỐI NỀN 40% VÀ NỔI ẢNH (WEB PC) */
+        @media (min-width: 1024px) {
+            body::before {
+                content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background-color: rgba(0, 0, 0, 0.4); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+            }
+            body:has(.grid-card:hover)::before { opacity: 1; }
+            .complex-grid:hover .grid-card { opacity: 0.5; filter: blur(0.5px); transition: all 0.3s ease; }
+            .complex-grid .grid-card:hover {
+                opacity: 1 !important; filter: none !important; z-index: 50 !important;
+                transform: scale(1.03) !important; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            }
+            .grid-card .hover-info { opacity: 0; transition: opacity 0.3s ease; }
+            .grid-card:hover .hover-info { opacity: 1; }
         }
     </style>
 </head>
@@ -50,15 +55,15 @@
         </div>
     </header>
     
-    <main class="max-w-7xl mx-auto p-2 py-6">
-        <div id="portfolio-grid" class="masonry-grid"></div>
+    <main class="max-w-7xl mx-auto p-1 py-4">
+        <div id="portfolio-grid" class="complex-grid"></div>
     </main>
 
-    <div id="lightbox" class="fixed inset-0 bg-black/40 z-[9999] hidden flex-col items-center justify-center transition-opacity duration-300 opacity-0 backdrop-blur-sm" onclick="closeLightbox()">
+    <div id="lightbox" class="fixed inset-0 bg-black/90 z-[9999] hidden flex-col items-center justify-center backdrop-blur-md transition-opacity duration-300 opacity-0" onclick="closeLightbox()">
         <button onclick="closeLightbox()" class="absolute top-6 right-8 text-white text-4xl hover:text-red-500 cursor-pointer transition z-50">&times;</button>
-        <div class="relative flex flex-col items-center justify-center w-[90vw] md:w-[70vw] h-[80vh] md:h-[75vh]" onclick="event.stopPropagation()">
+        <div class="relative flex flex-col items-center justify-center w-[90vw] md:w-[60vw] h-[80vh] md:h-[60vh]" onclick="event.stopPropagation()">
             <div id="lightbox-content" class="w-full h-full flex items-center justify-center relative"></div>
-            <div id="lightbox-caption" class="absolute -bottom-10 text-center w-full text-yellow-500 text-lg md:text-xl font-bold tracking-widest uppercase drop-shadow-md"></div>
+            <div id="lightbox-caption" class="absolute -bottom-10 text-center w-full text-white text-sm md:text-lg font-medium tracking-wide uppercase"></div>
         </div>
     </div>
 
@@ -81,7 +86,6 @@
             const mc = document.getElementById('menu-container');
             mc.innerHTML = config.menu.map(m => `<button onclick="filterCategory('${m}')" class="hover:text-blue-400 transition cursor-pointer text-gray-400 font-medium text-sm">${m}</button>`).join('');
             
-            // Xáo trộn ngẫu nhiên để các ảnh đan xen tự nhiên
             const shuffledItems = [...config.items].sort(() => Math.random() - 0.5);
             renderPortfolio(shuffledItems);
         }
@@ -93,9 +97,16 @@
                 return;
             }
 
-            grid.innerHTML = items.map((item) => {
+            // Tỷ lệ phân bổ: Ảnh siêu to và ảnh dọc/ngang đan xen ảnh nhỏ
+            const layouts = ["span-normal", "span-tall", "span-normal", "span-big", "span-normal", "span-wide", "span-normal", "span-normal"];
+
+            grid.innerHTML = items.map((item, idx) => {
                 const imgUrl = getEmbedLink(item.link);
+                const safeTitle = item.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 const safeCat = item.category.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                
+                // Gán tỷ lệ khung ngẫu nhiên
+                const chosenClass = layouts[idx % layouts.length];
 
                 if (item.type === 'video') {
                     const videoUrl = item.link.match(/\/file\/d\/([^/]+)/) || item.link.match(/\/d\/([^/]+)/) || item.link.match(/id=([^&]+)/);
@@ -103,19 +114,23 @@
                     const safeEmbed = embedSrc.replace(/'/g, "\\'");
                     
                     return `
-                        <div class="masonry-item" onclick="openLightbox('${safeEmbed}', '${safeCat}', 'video')">
-                            <div class="image-container aspect-video">
-                                <iframe src="${embedSrc}" class="w-full h-full border-0 pointer-events-none" allow="autoplay"></iframe>
-                                <div class="absolute inset-0 bg-transparent"></div>
+                        <div class="grid-card bg-black shadow-sm ${chosenClass}" onclick="openLightbox('${safeEmbed}', '${safeTitle}', '${safeCat}', 'video')">
+                            <iframe src="${embedSrc}" allow="autoplay"></iframe>
+                            <div class="absolute inset-0 bg-transparent"></div>
+                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent z-10">
+                                <p class="text-yellow-400 text-[10px] uppercase font-bold tracking-widest">${item.category}</p>
+                                <p class="text-white text-xs tracking-wider">${item.title}</p>
                             </div>
                         </div>
                     `;
                 } else {
                     const safeImgUrl = imgUrl.replace(/'/g, "\\'");
                     return `
-                        <div class="masonry-item" onclick="openLightbox('${safeImgUrl}', '${safeCat}', 'image')">
-                            <div class="image-container">
-                                <img src="${imgUrl}" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
+                        <div class="grid-card bg-black shadow-sm ${chosenClass}" onclick="openLightbox('${safeImgUrl}', '${safeTitle}', '${safeCat}', 'image')">
+                            <img src="${imgUrl}" referrerpolicy="no-referrer" onerror="this.src='https://placehold.co/600x400/1f2937/9ca3af?text=Error'">
+                            <div class="hover-info absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/90 to-transparent z-10">
+                                <p class="text-yellow-400 text-[10px] uppercase font-bold tracking-widest">${item.category}</p>
+                                <p class="text-white text-xs tracking-wider">${item.title}</p>
                             </div>
                         </div>
                     `;
@@ -133,8 +148,8 @@
             }
         }
 
-        /* LOGIC ĐIỀU KHIỂN POPUP */
-        function openLightbox(src, category, type) {
+        /* LOGIC ĐIỀU KHIỂN POPUP 60% */
+        function openLightbox(src, title, category, type) {
             const lb = document.getElementById('lightbox');
             const content = document.getElementById('lightbox-content');
             const caption = document.getElementById('lightbox-caption');
@@ -148,8 +163,7 @@
                 content.innerHTML = `<img src="${src}" class="max-w-full max-h-full object-contain rounded shadow-2xl">`;
             }
             
-            // Chỉ in ra Tên Folder
-            caption.innerHTML = `[ ${category} ]`;
+            caption.innerHTML = `<span class="text-yellow-500 font-bold">[ ${category} ]</span> <span class="text-gray-400">/</span> ${title}`;
         }
 
         function closeLightbox() {
